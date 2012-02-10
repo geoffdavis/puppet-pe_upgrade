@@ -14,16 +14,16 @@ class pe::upgrade(
   }
   else {
 
-    $upgrade_root        = '/opt/puppet/upgrade'
-    $installer_tar_file  = "puppet-enterprise-${version}-all.tgz":
-    $upgrade_dir         = "puppet-enterprise-${version}-all":
+    $upgrade_root        = "/opt/puppet/upgrade-${version}"
+    $installer_tar_file  = "puppet-enterprise-${version}-all.tar.gz"
+    $upgrade_dir         = "puppet-enterprise-${version}-all"
     $upgrader_executable = "${upgrade_root}/${upgrade_dir}/puppet-enterprise-upgrader"
 
-    if $answersfile {
-      $answersfile_source = $answersfile
+    if $answersfile == 'UNSET' {
+      $answersfile_source = "pe/answers/${::hostname}.txt.erb"
     }
     else {
-      $answersfile_source = "puppet:///modules/pe/answers/${hostname}.txt"
+      $answersfile_source = $answersfile
     }
     $answersfile_dest = "${upgrade_root}/answers.txt"
 
@@ -43,7 +43,7 @@ class pe::upgrade(
 
     file { $answersfile_dest:
       ensure  => present,
-      source  => $answersfile_source,
+      content => template($answersfile_source),
       owner   => 0,
       group   => 0,
       require => File[$upgrade_root],
