@@ -49,8 +49,8 @@ class pe::upgrade(
       require => File[$upgrade_root],
     }
 
-    exec { 'extract_installer',
-      command   => "tar xf ${upgrade_root}/${installer_tar_file} -C ${upgrade_root}"
+    exec { 'Extract installer':
+      command   => "tar xf ${upgrade_root}/${installer_tar_file} -C ${upgrade_root}",
       path      => ['/usr/bin', '/bin'],
       creates   => "${upgrade_root}/${upgrade_dir}"
       user      => 0,
@@ -75,7 +75,7 @@ class pe::upgrade(
         command => "/bin/rm -rf ${upgrade_root}"
         user    => 0,
         group   => 0,
-        require => Exec['run_upgrader'],
+        require => Exec['Run upgrade'],
       }
     }
   }
