@@ -61,13 +61,10 @@
 # limitations under the License.
 #
 class pe::upgrade(
-  $version,
+  $version     = '2.0.2',
   $answersfile = 'UNSET',
   $cleanup     = false
 ) {
-
-  # TODO validate $version
-  # ostensibly using kwalify
 
   if $version == $::pe_version {
     notify { 'pe-upgrade status':
