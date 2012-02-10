@@ -22,3 +22,19 @@ See Also
 Please view the documentation in the enclosed manifests specific descriptions
 and usage.
 
+Example Answers Template
+------------------------
+
+This template could be used to upgrade a generic Puppet agent installation.
+
+    q_install=y
+    q_puppet_cloud_install=n
+    q_puppet_enterpriseconsole_install=n
+    q_puppetagent_install=y
+    q_puppetagent_server=<%= scope.lookupvar('::server') %>
+    q_puppetmaster_install=n
+    q_rubydevelopment_install=n
+    q_upgrade_install_wrapper_modules=n
+    q_upgrade_installation=y
+    q_upgrade_remove_mco_homedir=n
+    q_vendor_packages_install=y
