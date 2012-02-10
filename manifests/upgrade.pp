@@ -34,11 +34,11 @@ class pe::upgrade(
     }
 
     file { "${upgrade_root}/${installer_tar_file}":
-      ensure => present,
-      source => "puppet:///modules/pe/${installer_tar_file}"
-      owner  => 0,
-      group  => 0,
-      require => File[$install_root],
+      ensure  => present,
+      source  => "puppet:///modules/pe/${installer_tar_file}",
+      backup  => false,
+      owner   => 0,
+      group   => 0,
     }
 
     file { $answersfile_dest:
