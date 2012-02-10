@@ -6,15 +6,16 @@
 #
 {
   :pe_version       => /\(Puppet Enterprise\s+([\d.]+)\)/,
-  :pe_major_release => /\(Puppet Enterprise\s+(\d+)\.\d+\.\d+\)/,
-  :pe_minor_release => /\(Puppet Enterprise\s+\d+\.(\d+)\.\d+\)/,
-  :pe_patch_release => /\(Puppet Enterprise\s+\d+\.\d+\.(\d+)\)/,
+  :pe_major_version => /\(Puppet Enterprise\s+(\d+)\.\d+\.\d+\)/,
+  :pe_minor_version => /\(Puppet Enterprise\s+\d+\.(\d+)\.\d+\)/,
+  :pe_patch_version => /\(Puppet Enterprise\s+\d+\.\d+\.(\d+)\)/,
 }.each_pair do |fact_name, fact_regex|
 
-  setcode do
-    if Facter.value(:puppetversion).match(fact_regex)
-      $1
+  Facter.add(fact_name) do
+    setcode do
+      if Facter.value(:puppetversion).match(fact_regex)
+        $1
+      end
     end
   end
 end
-
