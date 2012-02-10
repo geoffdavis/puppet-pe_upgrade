@@ -52,27 +52,35 @@ class pe::upgrade(
     exec { 'Extract installer':
       command   => "tar xf ${upgrade_root}/${installer_tar_file} -C ${upgrade_root}",
       path      => ['/usr/bin', '/bin'],
-      creates   => "${upgrade_root}/${upgrade_dir}"
+      creates   => "${upgrade_root}/${upgrade_dir}",
       user      => 0,
       group     => 0,
       logoutput => on_failure,
       require   => File[$upgrade_root, "${upgrade_root}/${installer_tar_file}"],
     }
 
-    exec { 'run_upgrader':
-      command => "${upgrader_executable} -a ${answerfile_path}",
-      path    => ['/usr/bin', '/bin']
-      user    => 0,
-      group   => 0,
-      require => [
-        Exec['extract_installer'],
+    exec { 'Run upgrade':
+      command   => "${upgrader_executable} -a ${answersfile_dest}",
+      path      => [
+        '/usr/bin',
+        '/bin',
+        '/usr/local/bin',
+        '/usr/sbin',
+        '/sbin',
+        '/usr/local/sbin'
+      ],
+      user      => 0,
+      group     => 0,
+      logoutput => on_failure,
+      require   => [
+        Exec['Extract installer'],
         File[$answersfile_dest],
       ],
     }
 
     if $cleanup {
-      exec { 'remove_upgrader_files':
-        command => "/bin/rm -rf ${upgrade_root}"
+      exec { 'Remove upgrader files':
+        command => "/bin/rm -rf ${upgrade_root}",
         user    => 0,
         group   => 0,
         require => Exec['Run upgrade'],
