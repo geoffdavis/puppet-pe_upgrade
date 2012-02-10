@@ -8,7 +8,9 @@ class pe::upgrade(
   # ostensibly using kwalify
 
   if $version == $::pe_version {
-    notify { "Puppet Enterprise at desired version: ${version}": }
+    notify { 'pe-upgrade status':
+      message => "Puppet Enterprise at desired version: ${version}",
+    }
   }
   else {
 
