@@ -4,8 +4,6 @@ class pe::upgrade(
   $cleanup     = false
 ) {
 
-  include pe::params
-
   # TODO validate $version
   # ostensibly using kwalify
 
