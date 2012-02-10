@@ -118,8 +118,8 @@ class pe::upgrade(
       require   => File[$upgrade_root, "${upgrade_root}/${installer_tar_file}"],
     }
 
-    exec { 'Run upgrade':
-      command   => "${upgrader_executable} -a ${answersfile_dest}",
+    exec { 'Validate answers':
+      command   => "${upgrader_executable} -n -a ${answersfile_dest}",
       path      => [
         '/usr/bin',
         '/bin',
@@ -135,6 +135,22 @@ class pe::upgrade(
         Exec['Extract installer'],
         File[$answersfile_dest],
       ],
+    }
+
+    exec { 'Run upgrade':
+      command   => "${upgrader_executable} -a ${answersfile_dest}",
+      path      => [
+        '/usr/bin',
+        '/bin',
+        '/usr/local/bin',
+        '/usr/sbin',
+        '/sbin',
+        '/usr/local/sbin'
+      ],
+      user      => 0,
+      group     => 0,
+      logoutput => on_failure,
+      require   => Exec['Validate answers'],
     }
 
     if $cleanup {
