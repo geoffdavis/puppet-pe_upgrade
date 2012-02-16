@@ -61,9 +61,9 @@
 # limitations under the License.
 #
 class pe::upgrade(
-  $version     = '2.0.2',
-  $answersfile = 'UNSET',
-  $cleanup     = false
+  $version      = '2.0.2',
+  $answersfile  = "pe/answers/${::hostname}.txt.erb",
+  $download_dir = '/vagrant/files/'
 ) {
 
   if $version == $::pe_version {
@@ -72,54 +72,52 @@ class pe::upgrade(
     }
   }
   else {
+    require staging
 
-    $upgrade_root        = "/opt/puppet/upgrade-${version}"
-    $installer_tar_file  = "puppet-enterprise-${version}-all.tar.gz"
-    $upgrade_dir         = "puppet-enterprise-${version}-all"
-    $upgrader_executable = "${upgrade_root}/${upgrade_dir}/puppet-enterprise-upgrader"
+    ############################################################################
+    # Munge variables
+    ############################################################################
 
-    if $answersfile == 'UNSET' {
-      $answersfile_source = "pe/answers/${::hostname}.txt.erb"
-    }
-    else {
-      $answersfile_source = $answersfile
-    }
-    $answersfile_dest = "${upgrade_root}/answers.txt"
+    $installer_tar       = "puppet-enterprise-${version}-all.tar.gz"
+    $installer_dir       = "puppet-enterprise-${version}-all"
 
-    file { $upgrade_root:
-      ensure => directory,
-      owner  => 0,
-      group  => 0,
+    $source_url = "${download_dir}/${installer_tar}"
+
+    $upgrader = "${staging::path}/pe/${installer_dir}/puppet-enterprise-upgrader"
+
+    ############################################################################
+    # Stage the installer
+    ############################################################################
+
+    staging::file { $installer_tar:
+      source => $source_url,
     }
 
-    file { "${upgrade_root}/${installer_tar_file}":
-      ensure  => present,
-      source  => "puppet:///modules/pe/${installer_tar_file}",
-      backup  => false,
-      owner   => 0,
-      group   => 0,
+    staging::extract { $installer_tar:
+      target  => "${staging::path}/pe",
+      require => Staging::File[$installer_tar],
     }
+
+    ############################################################################
+    # XXX Bullshit
+    ############################################################################
+
+    $answersfile_dest = "${staging::path}/pe/answers.txt"
 
     file { $answersfile_dest:
       ensure  => present,
-      content => template($answersfile_source),
+      content => template($answersfile),
       owner   => 0,
       group   => 0,
-      require => File[$upgrade_root],
+      require => File["${staging::path}/pe"],
     }
 
-    exec { 'Extract installer':
-      command   => "tar xf ${upgrade_root}/${installer_tar_file} -C ${upgrade_root}",
-      path      => ['/usr/bin', '/bin'],
-      creates   => "${upgrade_root}/${upgrade_dir}",
-      user      => 0,
-      group     => 0,
-      logoutput => on_failure,
-      require   => File[$upgrade_root, "${upgrade_root}/${installer_tar_file}"],
-    }
+    ############################################################################
+    # Validate and perform upgrade
+    ############################################################################
 
     exec { 'Validate answers':
-      command   => "${upgrader_executable} -n -a ${answersfile_dest}",
+      command   => "${upgrader} -n -a ${answersfile_dest}",
       path      => [
         '/usr/bin',
         '/bin',
@@ -131,14 +129,11 @@ class pe::upgrade(
       user      => 0,
       group     => 0,
       logoutput => on_failure,
-      require   => [
-        Exec['Extract installer'],
-        File[$answersfile_dest],
-      ],
+      require   => Staging::Extract[$installer_tar],
     }
 
     exec { 'Run upgrade':
-      command   => "${upgrader_executable} -a ${answersfile_dest}",
+      command   => "${upgrader} -a ${answersfile_dest}",
       path      => [
         '/usr/bin',
         '/bin',
@@ -151,15 +146,6 @@ class pe::upgrade(
       group     => 0,
       logoutput => on_failure,
       require   => Exec['Validate answers'],
-    }
-
-    if $cleanup {
-      exec { 'Remove upgrader files':
-        command => "/bin/rm -rf ${upgrade_root}",
-        user    => 0,
-        group   => 0,
-        require => Exec['Run upgrade'],
-      }
     }
   }
 }
