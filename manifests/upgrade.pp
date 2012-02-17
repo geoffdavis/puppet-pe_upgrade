@@ -63,7 +63,8 @@
 class pe::upgrade(
   $version      = '2.0.2',
   $answersfile  = "pe/answers/${::hostname}.txt.erb",
-  $download_dir = '/vagrant/files/'
+  $download_dir = '/vagrant/files/',
+  $timeout      = undef
 ) {
 
   if $version == $::pe_version {
@@ -90,7 +91,8 @@ class pe::upgrade(
     ############################################################################
 
     staging::file { $installer_tar:
-      source => $source_url,
+      source  => $source_url,
+      timeout => $timeout,
     }
 
     staging::extract { $installer_tar:
