@@ -63,9 +63,9 @@
 # limitations under the License.
 #
 class pe::upgrade(
-  $version      = '2.0.2',
-  $answersfile  = "pe/answers/${::hostname}.txt.erb",
-  $download_dir = '/vagrant/files/',
+  $download_dir,
+  $version,
+  $answersfile  = "pe/answers/agent.txt.erb",
   $timeout      = undef
 ) {
 
