@@ -1,7 +1,6 @@
 # == Class: pe::upgrade
 #
-# This class will perform the upgrade of PE to the specified version. Temporary
-# files for the installer will be placed in /opt/puppet/upgrade-${version}
+# This class will perform the upgrade of PE to the specified version.
 #
 # == Parameters
 #
@@ -14,24 +13,27 @@
 # [*answersfile*]
 #
 # The path to a PE answers file. Defaults to the template
-# "pe/answers/${::hostname}.txt.erb"
+# "pe/answers/agent.txt.erb". An example master template is available at
+# "pe/ansters/master.txt.erb"
 #
-# [*cleanup*]
+# [*download_dir*]
 #
-# Whether to remove upgrade files after installation. Defaults to false.
+# The location to fetch the Puppet Enterprise installer tarball.
 #
 # == Examples
 #
 #   # Minimal
 #   class { 'pe::upgrade':
-#     version => '2.0.2',
+#     version      => '2.0.3',
+#     download_dir => 'https://download.server.local/puppet-enterprise/2.0.3',
 #   }
 #
 #   # More customized
 #   class { 'pe::upgrade':
-#     version     => '2.0.2',
-#     answersfile => "site/answers/${fqdn}-answers.txt",
-#     cleanup     => true,
+#     version      => '2.0.3',
+#     answersfile  => "site/answers/${fqdn}-answers.txt",
+#     download_dir => 'https://pm.puppetlabs.com/puppet-enterprise/2.0.3',
+#     timeout      => '3600',
 #  }
 #
 # == Caveats
@@ -86,8 +88,10 @@ class pe::upgrade(
 
     $upgrader = "${staging::path}/pe/${installer_dir}/puppet-enterprise-upgrader"
 
+    $answersfile_dest = "${staging::path}/pe/answers.txt"
+
     ############################################################################
-    # Stage the installer
+    # Stage the installer and answers file
     ############################################################################
 
     staging::file { $installer_tar:
@@ -99,12 +103,6 @@ class pe::upgrade(
       target  => "${staging::path}/pe",
       require => Staging::File[$installer_tar],
     }
-
-    ############################################################################
-    # XXX Bullshit
-    ############################################################################
-
-    $answersfile_dest = "${staging::path}/pe/answers.txt"
 
     file { $answersfile_dest:
       ensure  => present,
