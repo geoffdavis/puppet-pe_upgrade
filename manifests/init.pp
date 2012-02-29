@@ -1,4 +1,4 @@
-# == Class: pe::upgrade
+# == Class: pe_upgrade
 #
 # This class will perform the upgrade of PE to the specified version.
 #
@@ -20,16 +20,21 @@
 #
 # The location to fetch the Puppet Enterprise installer tarball.
 #
+# [*timeout*]
+#
+# The timeout in seconds for the download of the Puppet Enterprise installer.
+# Defaults to the standard timeout of 600 seconds, or 5 minutes.
+#
 # == Examples
 #
 #   # Minimal
-#   class { 'pe::upgrade':
+#   class { 'pe_upgrade':
 #     version      => '2.0.3',
 #     download_dir => 'https://download.server.local/puppet-enterprise/2.0.3',
 #   }
 #
 #   # More customized
-#   class { 'pe::upgrade':
+#   class { 'pe_upgrade':
 #     version      => '2.0.3',
 #     answersfile  => "site/answers/${fqdn}-answers.txt",
 #     download_dir => 'https://pm.puppetlabs.com/puppet-enterprise/2.0.3',
@@ -62,10 +67,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-class pe::upgrade(
+class pe_upgrade(
   $download_dir,
   $version,
-  $answersfile  = "pe/answers/agent.txt.erb",
+  $answersfile  = "pe_upgrade/answers/agent.txt.erb",
   $timeout      = undef
 ) {
 
@@ -86,9 +91,9 @@ class pe::upgrade(
 
     $source_url = "${download_dir}/${installer_tar}"
 
-    $upgrader = "${staging::path}/pe/${installer_dir}/puppet-enterprise-upgrader"
+    $upgrader = "${staging::path}/pe_upgrade/${installer_dir}/puppet-enterprise-upgrader"
 
-    $answersfile_dest = "${staging::path}/pe/answers.txt"
+    $answersfile_dest = "${staging::path}/pe_upgrade/answers.txt"
 
     ############################################################################
     # Stage the installer and answers file
@@ -100,7 +105,7 @@ class pe::upgrade(
     }
 
     staging::extract { $installer_tar:
-      target  => "${staging::path}/pe",
+      target  => "${staging::path}/pe_upgrade",
       require => Staging::File[$installer_tar],
     }
 
@@ -109,7 +114,7 @@ class pe::upgrade(
       content => template($answersfile),
       owner   => 0,
       group   => 0,
-      require => File["${staging::path}/pe"],
+      require => File["${staging::path}/pe_upgrade"],
     }
 
     ############################################################################
