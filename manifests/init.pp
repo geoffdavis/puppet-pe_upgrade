@@ -10,11 +10,12 @@
 # <major release>.<minor release>.<patch release>
 # For example, 2.0.2
 #
+# Default: 2.5.0
+#
 # [*answersfile*]
 #
 # The path to a PE answers file. Defaults to the template
-# "pe/answers/agent.txt.erb". An example master template is available at
-# "pe/ansters/master.txt.erb"
+# "pe/answers/default-agent.txt.erb".
 #
 # [*download_dir*]
 #
@@ -23,21 +24,22 @@
 # [*timeout*]
 #
 # The timeout in seconds for the download of the Puppet Enterprise installer.
-# Defaults to the standard timeout of 600 seconds, or 5 minutes.
+#
+# Default(Standard for exec): 600 seconds
 #
 # == Examples
 #
 #   # Minimal
 #   class { 'pe_upgrade':
-#     version      => '2.0.3',
-#     download_dir => 'https://download.server.local/puppet-enterprise/2.0.3',
+#     version      => '2.5.0',
+#     download_dir => 'https://download.server.local/puppet-enterprise/2.5.0',
 #   }
 #
 #   # More customized
 #   class { 'pe_upgrade':
-#     version      => '2.0.3',
+#     version      => '2.5.0',
 #     answersfile  => "site/answers/${fqdn}-answers.txt",
-#     download_dir => 'https://pm.puppetlabs.com/puppet-enterprise/2.0.3',
+#     download_dir => 'https://pm.puppetlabs.com/puppet-enterprise/2.5.0',
 #     timeout      => '3600',
 #  }
 #
@@ -75,6 +77,8 @@ class pe_upgrade(
 ) {
 
   if $version == $::pe_version {
+    # This conditional is added to reduce the catalog size after the upgrade
+    # has been performed.
     notify { 'pe-upgrade status':
       message => "Puppet Enterprise at desired version: ${version}",
     }
@@ -86,8 +90,8 @@ class pe_upgrade(
     # Munge variables
     ############################################################################
 
-    $installer_tar       = "puppet-enterprise-${version}-all.tar.gz"
-    $installer_dir       = "puppet-enterprise-${version}-all"
+    $installer_tar = "puppet-enterprise-${version}-all.tar.gz"
+    $installer_dir = "puppet-enterprise-${version}-all"
 
     $source_url = "${download_dir}/${installer_tar}"
 
