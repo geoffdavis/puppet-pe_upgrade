@@ -57,16 +57,17 @@ You can also locally host the downloads.
       timeout      => '3600',
     }
 
+Answers Templates
+-----------------
+
+A default answers file is available at templates/answers/default-agent.txt.erb.
+It's recommended that you upgrade the master by hand, since that will provide
+hiera for you, and since 2.5.0 has some new very site specific questions due
+to the console auth component, it's not really possible to provide a generic
+answers file.
+
 See Also
 --------
 
 Please view the documentation in the enclosed manifests specific descriptions
 and usage.
-
-Answers Templates
------------------
-
-Two premade templates are provided; templates/answers/master.txt.erb is a
-generic master upgrade answers file; templates/answers/agent.txt.erb is a
-generic agent upgrade answers file. Modify them appropriately to fit your
-environment.
