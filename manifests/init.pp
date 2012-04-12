@@ -99,6 +99,8 @@ class pe_upgrade(
 
     $answersfile_dest = "${staging::path}/pe_upgrade/answers.txt"
 
+    Exec { timeout => $timeout }
+
     ############################################################################
     # Stage the installer and answers file
     ############################################################################
