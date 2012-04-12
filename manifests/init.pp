@@ -70,9 +70,9 @@
 # limitations under the License.
 #
 class pe_upgrade(
-  $download_dir,
-  $version,
-  $answersfile  = "pe_upgrade/answers/agent.txt.erb",
+  $download_dir = $pe_upgrade::data::download_dir,
+  $version      = $pe_upgrade::data::version,
+  $answersfile  = $pe_upgrade::data::answersfile,
   $timeout      = undef
 ) {
 
